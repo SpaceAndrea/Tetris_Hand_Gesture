@@ -2,15 +2,15 @@ import pygame as pg
 
 vec = pg.math.Vector2
 
-FPS = 120
+FPS = 60
 FIELD_COLOR = (48, 39, 32)
 BG_COLOR = (24, 89, 117)
 
 SPRITE_DIR_PATH = 'assets/sprites'
 FONT_PATH = 'assets/font/FREAKSOFNATUREMASSIVE.ttf'
 
-ANIM_TIME_INTERVAL = 150  # milliseconds
-FAST_ANIM_TIME_INTERVAL = 15
+ANIM_TIME_INTERVAL = 300  # milliseconds
+FAST_ANIM_TIME_INTERVAL = 30
 
 TILE_SIZE = 50
 FIELD_SIZE = FIELD_W, FIELD_H = 10, 20

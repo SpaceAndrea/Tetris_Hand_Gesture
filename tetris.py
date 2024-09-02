@@ -74,6 +74,7 @@ class Tetris:
 
     def is_game_over(self):
         if self.tetromino.blocks[0].pos.y == INIT_POS_OFFSET[1]:
+            self.app.update_leaderboard(self.score)  # Aggiorna la classifica
             pg.time.wait(300)
             return True
 
