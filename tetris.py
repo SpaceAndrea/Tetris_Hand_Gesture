@@ -78,6 +78,7 @@ class Tetris:
             pg.time.wait(300)
             return True
 
+    #Gestisce l'atterraggio, bloccando il tetromino nel campo e generando il successivo.
     def check_tetromino_landing(self):
         if self.tetromino.landing:
             if self.is_game_over():
@@ -98,6 +99,8 @@ class Tetris:
             self.tetromino.rotate()
         elif pressed_key == pg.K_DOWN:
             self.speed_up = True
+        elif pressed_key == pg.K_SPACE:  # Barra spaziatrice per l'hard drop
+            self.hard_drop()
 
     def draw_grid(self):
         for x in range(FIELD_W):
@@ -117,3 +120,9 @@ class Tetris:
     def draw(self):
         self.draw_grid()
         self.sprite_group.draw(self.app.screen)
+    
+    def hard_drop(self):
+        """Fa cadere il tetromino attuale fino alla posizione più bassa possibile."""
+        while not self.tetromino.landing:
+            self.tetromino.move(direction='down')
+        self.check_tetromino_landing()  # Gestisci l'atterraggio del tetromino

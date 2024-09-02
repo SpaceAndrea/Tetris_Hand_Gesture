@@ -19,6 +19,8 @@ class Block(pg.sprite.Sprite):
         self.sfx_cycles = random.randrange(6, 8)
         self.cycle_counter = 0
 
+        self.next_pos = vec(pos) + NEXT_POS_OFFSET #visualizzare il tetromino in "hold"
+
     def sfx_end_time(self):
         if self.tetromino.tetris.app.anim_trigger:
             self.cycle_counter += 1
@@ -67,14 +69,87 @@ class Tetromino:
         self.blocks = [Block(self, pos) for pos in TETROMINOES[self.shape]]
         self.landing = False
         self.current = current
+        self.rotation_state = 0  # Stato di rotazione (0, 1, 2, 3)
 
+    #TENTATIVO NUMERO 1 (BASE):
+    # def rotate(self):
+    #     pivot_pos = self.blocks[0].pos
+    #     new_block_positions = [block.rotate(pivot_pos) for block in self.blocks]
+
+    #     if not self.is_collide(new_block_positions):
+    #         for i, block in enumerate(self.blocks):
+    #             block.pos = new_block_positions[i]
+
+    #TENTATIVO NUMERO 2:
+    # def rotate(self):
+    #     pivot_pos = self.blocks[0].pos
+    #     new_block_positions = [block.rotate(pivot_pos) for block in self.blocks]
+
+    #     if not self.is_collide(new_block_positions):
+    #         for i, block in enumerate(self.blocks):
+    #             block.pos = new_block_positions[i]
+    #     else:
+    #         # Tentativo di wall kick spostando il pezzo a destra di un blocco
+    #         kick_offset = vec(1, 0)  # Sposta di un blocco a destra
+    #         kicked_positions = [pos + kick_offset for pos in new_block_positions]
+    #         if not self.is_collide(kicked_positions):
+    #             for i, block in enumerate(self.blocks):
+    #                 block.pos = kicked_positions[i]
+    #         else:
+    #             # Tentativo di wall kick spostando il pezzo a sinistra di un blocco
+    #             kick_offset = vec(-1, 0)  # Sposta di un blocco a sinistra
+    #             kicked_positions = [pos + kick_offset for pos in new_block_positions]
+    #             if not self.is_collide(kicked_positions):
+    #                 for i, block in enumerate(self.blocks):
+    #                     block.pos = kicked_positions[i]
+        
+    #     # Controlla se la nuova posizione dei blocchi colliderebbe con qualcosa
+    #     if not self.is_collide(new_block_positions):
+    #         for i, block in enumerate(self.blocks):
+    #             block.pos = new_block_positions[i]
+    #     else:
+    #         # Tentativo di wall kick - Sposta il pezzo a destra
+    #         kicked_positions = [pos + vec(1, 0) for pos in new_block_positions]
+    #         if not self.is_collide(kicked_positions):
+    #             for i, block in enumerate(self.blocks):
+    #                 block.pos = kicked_positions[i]
+    #         else:
+    #             # Tentativo di wall kick - Sposta il pezzo a sinistra
+    #             kicked_positions = [pos + vec(-1, 0) for pos in new_block_positions]
+    #             if not self.is_collide(kicked_positions):
+    #                 for i, block in enumerate(self.blocks):
+    #                     block.pos = kicked_positions[i]
+
+    #TENTATIVO NUMERO 3:
     def rotate(self):
-        pivot_pos = self.blocks[0].pos
-        new_block_positions = [block.rotate(pivot_pos) for block in self.blocks]
+        pivot_pos = self.blocks[0].pos  # Considera il primo blocco come pivot
+        new_block_positions = []
+        
+        for block in self.blocks:
+            translated = block.pos - pivot_pos  # Trasla il blocco in modo che il pivot sia l'origine
+            rotated = translated.rotate(90)  # Ruota il blocco di 90 gradi
+            new_pos = rotated + pivot_pos  # Trasla il blocco ruotato indietro alla posizione originale
+            new_block_positions.append(new_pos)
 
-        if not self.is_collide(new_block_positions):
-            for i, block in enumerate(self.blocks):
-                block.pos = new_block_positions[i]
+        # Tentativi di Wall Kick
+        wall_kicks = [
+            vec(0, 0),  # Nessuno spostamento (tentativo iniziale)
+            vec(1, 0),  # 1 a destra
+            vec(-1, 0), # 1 a sinistra
+            vec(0, -1), # 1 in alto
+            vec(1, -1), # 1 a destra e 1 in alto
+            vec(-1, -1) # 1 a sinistra e 1 in alto
+        ]
+
+        for kick in wall_kicks:
+            kicked_positions = [pos + kick for pos in new_block_positions]
+            if not self.is_collide(kicked_positions):
+                for i, block in enumerate(self.blocks):
+                    block.pos = kicked_positions[i]
+                return  # Rotazione riuscita, esci dalla funzione
+
+        # Se nessuna delle posizioni "kicked" funziona, la rotazione viene annullata
+
 
     def is_collide(self, block_positions):
         return any(map(Block.is_collide, self.blocks, block_positions))
